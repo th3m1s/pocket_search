@@ -70,6 +70,7 @@ class Readability:
     self.removeScript()
     self.removeStyle()
     self.removeLink()
+    self.removeImg()
 
     self.title = self.getArticleTitle()
     self.content = self.grabArticle()
@@ -84,6 +85,10 @@ class Readability:
 
   def removeLink(self):
     for elem in self.html.findAll("link"):
+      elem.extract()
+
+  def removeImg(self):
+    for elem in self.html.findAll("img"):
       elem.extract()
 
   def grabArticle(self):
@@ -320,20 +325,3 @@ class Readability:
       linkLength += len(link.text)
 
     return linkLength / textLength
-
-  def fixImagesPath(self, node):
-    imgs = node.findAll('img')
-    for img in imgs:
-      src = img.get('src', None)
-      if not src:
-        img.extract()
-        continue
-
-      if 'http://' != src[:7] and 'https://' != src[:8]:
-        newSrc = urlparse.urljoin(self.url, src)
-
-        newSrcArr = urlparse.urlparse(newSrc)
-        newPath = posixpath.normpath(newSrcArr[2])
-        newSrc = urlparse.urlunparse((newSrcArr.scheme, newSrcArr.netloc, newPath,
-                                      newSrcArr.params, newSrcArr.query, newSrcArr.fragment))
-        img['src'] = newSrc
