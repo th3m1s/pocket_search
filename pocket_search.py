@@ -97,6 +97,11 @@ def mapcount(f):
 
 def mapfunc(line, path_to_output):
   given_url = line.split(",")[2]
+
+  if given_url.rsplit(".")[-1] == 'pdf|jpg|jpeg|png':
+    print("FileFormatError,", given_url, file=sys.stderr)
+    return
+
   try:
     htmlcode = urllib.request.urlopen(given_url).read().decode()
   except UnicodeDecodeError:
@@ -120,6 +125,7 @@ def mapfunc(line, path_to_output):
   except KeyError:
     print("KeyError,", given_url, file=sys.stderr)
     return
+
   body_removetag = bs4.BeautifulSoup(body_html, "lxml").text.replace('\n', '').replace(',', '')
 
   row = [given_url, body_removetag]
@@ -154,7 +160,7 @@ def main(access_token):
                       help='number of items (default: all)')
 
   args = parser.parse_args()
-  print(args)  # for debug
+  # print(args)  # for debug
 
   if args.init is not 'None':
     print("Initialize app")
